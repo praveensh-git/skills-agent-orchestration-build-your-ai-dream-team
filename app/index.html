@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="A quick overview of project ownership, status, activity, and priority.">
+    <title>Project Pulse</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="dashboard-header">
+        <p>Team overview</p>
+        <h1>Project Pulse</h1>
+        <p>A snapshot of what the team is building and where it needs attention.</p>
+      </header>
+
+      <section id="project-content" aria-live="polite" aria-busy="true">
+        <p class="loading-state" role="status">Loading projects…</p>
+      </section>
+    </main>
+
+    <script>
+      const content = document.querySelector("#project-content");
+
+      function showState(className, message, role = "status") {
+        content.replaceChildren();
+        const state = document.createElement("p");
+        state.className = className;
+        state.setAttribute("role", role);
+        state.textContent = message;
+        content.append(state);
+        content.setAttribute("aria-busy", "false");
+      }
+
+      function addText(parent, tagName, className, text) {
+        const element = document.createElement(tagName);
+        element.className = className;
+        element.textContent = text;
+        parent.append(element);
+        return element;
+      }
+
+      function normalizeBadgeText(text) {
+        return String(text).trim().toLowerCase().replace(/[\s_]+/g, "-");
+      }
+
+      function getStatusModifier(status) {
+        const normalizedStatus = normalizeBadgeText(status);
+        switch (normalizedStatus) {
+          case "in-progress":
+            return "status-in-progress";
+          case "on-track":
+            return "status-on-track";
+          case "in-review":
+            return "status-in-review";
+          case "needs-attention":
+            return "status-needs-attention";
+          default:
+            return "";
+        }
+      }
+
+      function getPriorityModifier(priority) {
+        const normalizedPriority = normalizeBadgeText(priority);
+        switch (normalizedPriority) {
+          case "high":
+            return "priority-high";
+          case "medium":
+            return "priority-medium";
+          case "low":
+            return "priority-low";
+          default:
+            return "";
+        }
+      }
+
+      function addBadge(parent, baseClassName, modifierClassName, text) {
+        const className = modifierClassName
+          ? `${baseClassName} ${modifierClassName}`
+          : baseClassName;
+        return addText(parent, "span", className, text);
+      }
+
+      function renderProjects(projects) {
+        if (projects.length === 0) {
+          showState("empty-state", "There are no projects to show yet.");
+          return;
+        }
+
+        const grid = document.createElement("div");
+        grid.className = "project-grid";
+
+        for (const project of projects) {
+          const card = document.createElement("article");
+          card.className = "project-card";
+
+          const cardHeader = document.createElement("header");
+          cardHeader.className = "project-card__header";
+          addText(cardHeader, "h2", "", project.name);
+          addText(cardHeader, "p", "project-card__owner", `Owner: ${project.owner}`);
+          card.append(cardHeader);
+
+          addText(card, "p", "project-card__summary", project.summary);
+
+          const details = document.createElement("div");
+          details.className = "project-card__details";
+          addBadge(details, "status-badge", getStatusModifier(project.status), project.status);
+          addBadge(details, "priority-badge", getPriorityModifier(project.priority), `Priority: ${project.priority}`);
+          card.append(details);
+
+          const activity = document.createElement("p");
+          activity.className = "project-card__activity";
+          const activityLabel = document.createElement("strong");
+          activityLabel.textContent = "Recent activity: ";
+          activity.append(activityLabel, document.createTextNode(project.recentActivity));
+          card.append(activity);
+
+          grid.append(card);
+        }
+
+        content.replaceChildren(grid);
+        content.setAttribute("aria-busy", "false");
+      }
+
+      async function loadProjects() {
+        try {
+          const response = await fetch("project-data.json");
+          if (!response.ok) {
+            throw new Error(`Request failed (${response.status})`);
+          }
+          const data = await response.json();
+          if (!data || !Array.isArray(data.projects)) {
+            throw new Error("Project data must contain a projects array.");
+          }
+          renderProjects(data.projects);
+        } catch (error) {
+          showState("error-state", "Projects couldn’t be loaded. Please try again later.", "alert");
+        }
+      }
+
+      loadProjects();
+    </script>
+  </body>
+</html>

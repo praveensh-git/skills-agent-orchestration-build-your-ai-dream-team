@@ -1,0 +1,36 @@
+{
+  "projects": [
+    {
+      "name": "Contributor Hub",
+      "owner": "Mona",
+      "status": "In progress",
+      "recentActivity": "Reviewed the onboarding flow and merged the first round of feedback.",
+      "priority": "High",
+      "summary": "Make it easier for new contributors to find their first task and get started."
+    },
+    {
+      "name": "Mobile Experience",
+      "owner": "Ari",
+      "status": "On track",
+      "recentActivity": "Completed responsive navigation tests across common phone sizes.",
+      "priority": "Medium",
+      "summary": "Improve the core project experience for teammates working from mobile devices."
+    },
+    {
+      "name": "Knowledge Base Refresh",
+      "owner": "Jordan",
+      "status": "In review",
+      "recentActivity": "The updated troubleshooting guide is ready for team review.",
+      "priority": "Low",
+      "summary": "Keep internal guides clear, current, and easy to search."
+    },
+    {
+      "name": "Release Readiness",
+      "owner": "Sam",
+      "status": "Needs attention",
+      "recentActivity": "A dependency update is being checked against the release checklist.",
+      "priority": "High",
+      "summary": "Coordinate final checks and resolve blockers ahead of the next release."
+    }
+  ]
+}
